@@ -7,3 +7,4 @@ numpy
 opencv-python
 python-multipart
 PyYAML
+pandas
