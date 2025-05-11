@@ -6,8 +6,8 @@ torchvision
 numpy
 opencv-python
 python-multipart
-PyYAML
 pandas
 matplotlib
 scipy
+requests
 pyyaml
