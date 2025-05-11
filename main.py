@@ -3,23 +3,31 @@ from fastapi.responses import JSONResponse
 from PIL import Image
 import torch
 import io
+import sys
+from pathlib import Path
 
-# Load YOLOv5 model (you can replace with a custom-trained model path)
-model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5s.pt', force_reload=True)
+# Add yolov5 path
+FILE = Path(__file__).resolve()
+ROOT = FILE.parent
+sys.path.append(str(ROOT / "yolov5"))
+
+from models.common import DetectMultiBackend
+from utils.general import non_max_suppression, scale_boxes
+from utils.torch_utils import select_device
+
+device = select_device('')
+model = DetectMultiBackend('yolov5s.pt', device=device)
 
 app = FastAPI()
 
 @app.post("/count-crops/")
 async def count_crops(file: UploadFile = File(...)):
-    print(f"Received file: {file.filename}")
     contents = await file.read()
-    image = Image.open(io.BytesIO(contents))
+    image = Image.open(io.BytesIO(contents)).convert('RGB')
+    img_tensor = torch.tensor(np.array(image)).permute(2, 0, 1).unsqueeze(0).float()
 
-    # Run detection
-    results = model(image)
-    detections = results.pandas().xyxy[0]
+    pred = model(img_tensor.to(device), augment=False)
+    pred = non_max_suppression(pred, 0.25, 0.45)
 
-    # For real projects: filter by class name if needed (e.g., 'plant', 'crop', etc.)
-    crop_count = len(detections)
-
+    crop_count = len(pred[0]) if pred[0] is not None else 0
     return JSONResponse(content={"crop_count": crop_count})

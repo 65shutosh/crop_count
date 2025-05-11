@@ -8,3 +8,6 @@ opencv-python
 python-multipart
 PyYAML
 pandas
+matplotlib
+scipy
+pyyaml
