@@ -5,7 +5,7 @@ import torch
 import io
 
 # Load YOLOv5 model (you can replace with a custom-trained model path)
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5s.pt', force_reload=True)
 
 app = FastAPI()
 
